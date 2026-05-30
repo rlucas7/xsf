@@ -71,3 +71,25 @@ TEST_CASE("lqmn stays finite next to singular endpoints", "[lqmn][xsf_tests]") {
         }
     }
 }
+
+TEST_CASE("lqmn stays finite for x below -1", "[lqmn][xsf_tests]") {
+    constexpr int m = 3;
+    constexpr int n = 4;
+    const double x = -1.05;
+
+    std::vector<double> qm_buf((m + 1) * (n + 1));
+    std::vector<double> qd_buf((m + 1) * (n + 1));
+
+    matrix_view<double> qm{qm_buf, static_cast<std::size_t>(m + 1), static_cast<std::size_t>(n + 1)};
+    matrix_view<double> qd{qd_buf, static_cast<std::size_t>(m + 1), static_cast<std::size_t>(n + 1)};
+
+    xsf::lqmn(x, qm, qd);
+
+    for (int i = 0; i <= m; ++i) {
+        for (int j = 0; j <= n; ++j) {
+            CAPTURE(x, i, j, qm(i, j), qd(i, j));
+            REQUIRE(std::isfinite(qm(i, j)));
+            REQUIRE(std::isfinite(qd(i, j)));
+        }
+    }
+}
