@@ -1,9 +1,25 @@
 #include "../testing_utils.h"
+#include <array>
 #include <cmath>
 #include <limits>
-#include <mdspan>
 #include <vector>
 #include <xsf/legendre.h>
+
+namespace {
+
+template <typename T>
+struct matrix_view {
+    std::vector<T> &data;
+    std::size_t rows;
+    std::size_t cols;
+
+    std::size_t extent(int dim) const { return dim == 0 ? rows : cols; }
+
+    T &operator()(std::size_t i, std::size_t j) { return data[i * cols + j]; }
+    const T &operator()(std::size_t i, std::size_t j) const { return data[i * cols + j]; }
+};
+
+} // namespace
 
 TEST_CASE("lqmn endpoints return sentinel values", "[lqmn][xsf_tests]") {
     constexpr int m = 3;
@@ -14,8 +30,8 @@ TEST_CASE("lqmn endpoints return sentinel values", "[lqmn][xsf_tests]") {
     std::vector<double> qm_buf((m + 1) * (n + 1));
     std::vector<double> qd_buf((m + 1) * (n + 1));
 
-    std::mdspan<double, std::dextents<std::size_t, 2>> qm(qm_buf.data(), m + 1, n + 1);
-    std::mdspan<double, std::dextents<std::size_t, 2>> qd(qd_buf.data(), m + 1, n + 1);
+    matrix_view<double> qm{qm_buf, static_cast<std::size_t>(m + 1), static_cast<std::size_t>(n + 1)};
+    matrix_view<double> qd{qd_buf, static_cast<std::size_t>(m + 1), static_cast<std::size_t>(n + 1)};
 
     xsf::lqmn(x, qm, qd);
 
@@ -42,8 +58,8 @@ TEST_CASE("lqmn stays finite next to singular endpoints", "[lqmn][xsf_tests]") {
     std::vector<double> qm_buf((m + 1) * (n + 1));
     std::vector<double> qd_buf((m + 1) * (n + 1));
 
-    std::mdspan<double, std::dextents<std::size_t, 2>> qm(qm_buf.data(), m + 1, n + 1);
-    std::mdspan<double, std::dextents<std::size_t, 2>> qd(qd_buf.data(), m + 1, n + 1);
+    matrix_view<double> qm{qm_buf, static_cast<std::size_t>(m + 1), static_cast<std::size_t>(n + 1)};
+    matrix_view<double> qd{qd_buf, static_cast<std::size_t>(m + 1), static_cast<std::size_t>(n + 1)};
 
     xsf::lqmn(x, qm, qd);
 
