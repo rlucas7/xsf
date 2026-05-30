@@ -204,7 +204,7 @@ namespace specfun {
             d1 = -2.0 * a0 * pow(x, ip + 1.0);
             su2 = ck[1];
             for (k = 2; k <= nm2; k++) {
-                r = k * ck[k] * pow(x1, (k - 1.0));
+                r = static_cast<T>(k) * ck[k] * pow(x1, (k - 1.0));
                 su2 += r;
                 if ((k >= 10) && (fabs(r / su2) < eps)) {
                     break;
@@ -221,37 +221,3 @@ namespace specfun {
         x = x0;
         return Status::OK;
     }
-
-    inline void bernob(int n, double *bn) {
-
-        // ======================================
-        // Purpose: Compute Bernoulli number Bn
-        // Input :  n >= 3 --- Serial number
-        // Output:  BN(n)  --- Bn
-        // ======================================
-
-        int k, m;
-        double r1, r2, s;
-        const double tpi = 6.283185307179586;
-
-        bn[0] = 1.0;
-        bn[1] = -0.5;
-        bn[2] = 1.0 / 6.0;
-        r1 = pow(2.0 / tpi, 2);
-        for (m = 4; m < (n + 1); m += 2) {
-            r1 = -r1 * (m - 1) * m / (tpi * tpi);
-            r2 = 1.0;
-            for (k = 2; k < 10001; k++) {
-                s = pow(1.0 / k, m);
-                r2 += s;
-                if (s < 1e-15) {
-                    break;
-                }
-            }
-            bn[m] = r1 * r2;
-        }
-        return;
-    }
-
-    inline void bjndd(double x, int n, double *bj, double *dj, double *fj) {
-...
